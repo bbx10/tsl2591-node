@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+  <head>
+    <title>TSL2591 Ambient Light Sensor</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <style>
+        body { font: 16px Helvetica, Arial; }
+    </style>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="app_functions.js"></script>
+  </head>
+  <body>
+    <form action="">
+        Gain:
+	<select id="gain" onchange="sendGain(this.value)">
+		<option value="0">Low</option>
+		<option value="1">Medium</option>
+		<option value="2">High</option>
+		<option value="3">Maximum</option>
+	</select>
+	Duration:
+	<select id="duration" onchange="sendDuration(this.value)">
+		<option value="0">100 ms</option>
+		<option value="1">200 ms</option>
+		<option value="2">300 ms</option>
+		<option value="3">400 ms</option>
+		<option value="4">500 ms</option>
+		<option value="5">600 ms</option>
+	</select>
+    </form>
+    <p>
+    <div id="lightdata"></div>
+  </body>
+</html>
