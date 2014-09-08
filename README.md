@@ -1,7 +1,7 @@
 tsl2591-node
 ============
 
-Module to use the TSL2591 ambient light sensor.
+Module to use the TSL2591 ambient light sensor (ALS).
 
 ## TSL2591
 
@@ -10,7 +10,7 @@ reports infrared and full-spectrum (visible plus infrared) light intensity.
 
 ## Raspberry Pi
 
-This module has been tested with the [Adafruit TSL2591](http://adafru.it/1980)
+This module has been tested with a [Adafruit TSL2591](http://adafru.it/1980)
 breakout board and a Raspberry Pi.
 
 ### Enable i2c
@@ -88,3 +88,9 @@ The data returned by readLuminosity is an object with raw sensor values.
 
 * ```vis_ir``` is the sensor value from the visible and infrared light sensor.
 * ```ir```` is the sensor value from the infrared sensor.
+
+## Examples directory
+
+tweakui creates a web interface (express+socket.io) to the sensor. The page
+shows the output of the sensor in real-time. The gain and duration options can
+be changed via drop down boxes.
