@@ -23,7 +23,7 @@
   "readmeFilename": "README.md",
   "gitHead": "d584b5fba77f7132a66e2f061ea8747aa6addc2f",
   "dependencies": {
-    "i2c": "~0.1.4"
+    "i2c": ">=0.2.0"
   },
   "devDependencies": {}
 }
