@@ -39,18 +39,9 @@ npm install tsl2591
 
 ## Getting started
 
-The following code sends the raw sensor data to the console once per second
-with minimal error handling.
+The following code reads raw data from the TSL2591 sensor once per second and show on console output.
 
-```
-var tsl2591 = require('tsl2591');
-
-/* Use /dev/i2c-0 on older Raspis */
-/* Note the options are passed directly to the i2c module */
-var light = new tsl2591({device: '/dev/i2c-1'});
-```
-
-The options object configures the sensor gain and ADC integration duration.
+The ```tslOptions``` object configures the sensor gain and ADC integration duration.
 
 ### ALS Gain
 
@@ -61,33 +52,45 @@ AGAIN: 0 = 1X (Low), 1 = 25X (Medium), 2 = 428X (High), 3 = 9876 (Max)
 ATIME: 0 = 100 ms, 1 = 200 ms, 2 = 300 ms, 3 = 400 ms, 4 = 500 ms, 5 = 600 ms
 
 ```
-light.init({AGAIN: 0, ATIME: 1}, function(err) {
-    if (err) {
+const Tsl2591 = require('tsl2591');
+
+async function showLum() {
+    try {
+        const data = await tsl2591.readLuminosity();
+        console.log(data);
+    } catch (err) {
+        console.log(err);
+    }
+    setTimeout(showLum, 1000);
+}
+
+async function main() {
+    try {
+        /* Use 0 as busNumber in init function (/dev/i2c-0) on older Raspis */
+        /* Note that the busNumber and the options object are passed directly to the i2c-bus module */
+        await tsl2591.init({
+            busNumber: 1,
+            tslOptions: { AGAIN: 0, ATIME: 1 }
+        });
+        console.log('TSL2591 ready');
+    } catch (err) {
         console.log(err);
         process.exit(-1);
     }
-    else {
-        console.log('TSL2591 ready');
-        setInterval(function() {
-            light.readLuminosity(function(err, data) {
-            if (err) {
-                console.log(err);
-            }
-            else {
-                console.log(data);
-            }
-            });
-        }, 1000);
-    }
-});
+    
+    await showLum();
+}
+
+const tsl2591 = new Tsl2591();
+main().then();
 ```
 
 ## Output
 
 The data returned by readLuminosity is an object with raw sensor values.
 
-* ```vis_ir``` is the sensor value from the visible and infrared light sensor.
-* ```ir```` is the sensor value from the infrared sensor.
+* ```visibleAndInfrared``` is the sensor value from the visible and infrared light sensor.
+* ```infrared``` is the sensor value from the infrared sensor.
 
 ## Examples directory
 

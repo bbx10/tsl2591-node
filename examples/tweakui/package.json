@@ -4,7 +4,6 @@
   "description": "Tweak TSL2591 parameters",
   "dependencies": {
     "express": "^4.8.8",
-    "i2c": "^0.1.4",
     "socket.io": "^1.1.0"
   }
 }
