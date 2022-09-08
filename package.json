@@ -1,6 +1,6 @@
 {
   "name": "tsl2591",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "description": "TSL2591 light sensor with i2c interface",
   "homepage": "https://github.com/bbx10node/tsl2591-node",
   "bugs": "https://github.com/bbx10node/tsl2591-node/issues",
@@ -23,7 +23,9 @@
   "readmeFilename": "README.md",
   "gitHead": "d584b5fba77f7132a66e2f061ea8747aa6addc2f",
   "dependencies": {
-    "i2c": ">=0.2.0"
+    "i2c-bus": "^5.2.2"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@types/i2c-bus": "^5.1.0"
+  }
 }

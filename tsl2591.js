@@ -1,3 +1,4 @@
+"use strict";
 /*
 The MIT License (MIT)
 
@@ -29,102 +30,83 @@ SOFTWARE.
 // http://adafru.it/1980
 //
 //
-var i2c = require('i2c');
+const i2c = require('i2c-bus');
 
 // legend: _R = read only,  _RW = read/write
-var TSL2591_ADDR	= 0x29;
-var TSL2591_DEVICE_ID_VALUE = 0x50;
-var TSL2591_DEVICE_RESET_VALUE = 0x80;
-var TSL2591_COMMAND	= 0x80;
-var TSL2591_NORMAL_OP	= 0x20;
-var TSL2591_ENABLE_RW 	= TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x00;
-var TSL2591_CONFIG_RW 	= TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x01;
-var TSL2591_AILTL_RW  	= TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x04;
-var TSL2591_AILTH_RW  	= TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x05;
-var TSL2591_AIHTL_RW  	= TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x06;
-var TSL2591_AIHTH_RW  	= TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x07;
-var TSL2591_NPAILTL_RW	= TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x08;
-var TSL2591_NPAILTH_RW	= TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x09;
-var TSL2591_NPAIHTL_RW	= TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x0A;
-var TSL2591_NPAIHTH_RW	= TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x0B;
-var TSL2591_PERSIST_RW	= TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x0C;
-var TSL2591_PID_R  	= TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x11;
-var TSL2591_ID_R 	= TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x12;
-var TSL2591_STATUS_R 	= TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x13;
-var TSL2591_C0DATAL_R	= TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x14;
-var TSL2591_C0DATAH_R	= TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x15;
-var TSL2591_C1DATAL_R 	= TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x16;
-var TSL2591_C1DATAH_R	= TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x17;
+const TSL2591_ADDR    = 0x29;
+const TSL2591_DEVICE_ID_VALUE = 0x50;
+const TSL2591_DEVICE_RESET_VALUE = 0x80;
+const TSL2591_ENABLE_POWER_OFF = 0x00;
+const TSL2591_ENABLE_POWER_ON = 0x01;
+const TSL2591_ENABLE_AEN_VALUE = 0x02;
+const TSL2591_COMMAND       = 0x80;
+const TSL2591_NORMAL_OP     = 0x20;
+const TSL2591_ENABLE_RW     = TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x00;
+const TSL2591_CONFIG_RW     = TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x01;
+const TSL2591_AILTL_RW      = TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x04;
+const TSL2591_AILTH_RW      = TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x05;
+const TSL2591_AIHTL_RW      = TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x06;
+const TSL2591_AIHTH_RW      = TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x07;
+const TSL2591_NPAILTL_RW    = TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x08;
+const TSL2591_NPAILTH_RW    = TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x09;
+const TSL2591_NPAIHTL_RW    = TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x0A;
+const TSL2591_NPAIHTH_RW    = TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x0B;
+const TSL2591_PERSIST_RW    = TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x0C;
+const TSL2591_PID_R         = TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x11;
+const TSL2591_ID_R          = TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x12;
+const TSL2591_STATUS_R      = TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x13;
+const TSL2591_C0DATAL_R     = TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x14;
+const TSL2591_C0DATAH_R     = TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x15;
+const TSL2591_C1DATAL_R     = TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x16;
+const TSL2591_C1DATAH_R     = TSL2591_COMMAND | TSL2591_NORMAL_OP | 0x17;
 
-var tsl2591 = function(options, tsloptions) {
-    "use strict";
-    this.i2caddr = TSL2591_ADDR;
-    this.i2coptions = options;
-    if (tsloptions === undefined) {
-        this.tsloptions = {};
-        this.tsloptions.AGAIN = 0;
-        this.tsloptions.ATIME = 0;
-    }
-    else {
-        this.tsloptions = tsloptions;
-    }
-    this.i2cdevice = new i2c(this.i2caddr, this.i2coptions);
-};
-
-tsl2591.prototype.init = function(tsloptions, callback) {
-    "use strict";
-    var i2cdev = this.i2cdevice;
-    var that = this;
-
-    if (tsloptions === undefined) {
-        this.tsloptions = {};
-        this.tsloptions.AGAIN = 0;
-        this.tsloptions.ATIME = 0;
-    }
-    else {
-        this.tsloptions = tsloptions;
-    }
-    // Reset the device and check for device ID to make sure it really is working
-    // Next configure the device
-    i2cdev.writeBytes(TSL2591_CONFIG_RW, [TSL2591_DEVICE_RESET_VALUE],
-            function(err) {
-                i2cdev.readBytes(TSL2591_ID_R, 1, function(err, data) {
-                    if (err) {
-                        console.log(err);
-                        callback(err);
-                    }
-                    else {
-                        console.log(that.tsloptions);
-                        if (data[0] === TSL2591_DEVICE_ID_VALUE) {
-                            i2cdev.writeBytes(TSL2591_ENABLE_RW,
-                                [0x03, (that.tsloptions.AGAIN<<4)|that.tsloptions.ATIME], function(err) {
-                                    if (err) {
-                                        callback(err);
-                                    }
-                                    else {
-                                        callback(null);
-                                    }
-                                });
-                        }
-                    }
-                });
-            });
-};
-
-tsl2591.prototype.readLuminosity = function(callback) {
-    "use strict";
-    this.i2cdevice.readBytes(TSL2591_C0DATAL_R, 4, function(err, data) {
-        if (err) {
-            callback(err, null);
+class Tsl2591 {
+    async init({ busNumber, options, tslOptions }) {
+        this.i2cDevice = await i2c.openPromisified(busNumber, options);
+        await this.reset();
+        if (await this.isWorking()) {
+            await this.configure(this.ensureTslOptions(tslOptions));
         }
-        else {
-            var light = {};
-            //console.log(data);
-            light.vis_ir = (data[1] << 8) | data[0];
-            light.ir     = (data[3] << 8) | data[2];
-            callback(null, light);
-        }
-    });
-};
+    }
 
-module.exports = tsl2591;
+    ensureTslOptions(tslOptions) {
+        if (tslOptions === undefined) {
+            return { AGAIN: 0, ATIME: 0 };
+        }
+
+        return tslOptions;
+    }
+
+    async reset() {
+        try {
+            await this.i2cDevice.writeByte(TSL2591_ADDR, TSL2591_CONFIG_RW, TSL2591_DEVICE_RESET_VALUE);
+        } catch (err) {
+            // Intentionally empty
+        }
+    }
+
+    async isWorking() {
+        // Check for device ID to make sure it really is working
+        const deviceId = await this.i2cDevice.readByte(TSL2591_ADDR, TSL2591_ID_R);
+        
+        return deviceId === TSL2591_DEVICE_ID_VALUE;
+    }
+
+    async configure(tslOptions) {
+        await this.i2cDevice.writeByte(TSL2591_ADDR, TSL2591_CONFIG_RW, (tslOptions.AGAIN << 4) | tslOptions.ATIME);
+        await this.enable();
+    }
+
+    async enable() {
+        await this.i2cDevice.writeByte(TSL2591_ADDR, TSL2591_ENABLE_RW, TSL2591_ENABLE_AEN_VALUE | TSL2591_ENABLE_POWER_ON);
+    }
+
+    async readLuminosity() {
+        const visibleAndInfrared = await this.i2cDevice.readWord(TSL2591_ADDR, TSL2591_C0DATAL_R);
+        const infrared = await this.i2cDevice.readWord(TSL2591_ADDR, TSL2591_C1DATAL_R);
+
+        return { visibleAndInfrared, infrared };
+    }
+}
+
+module.exports = Tsl2591;
